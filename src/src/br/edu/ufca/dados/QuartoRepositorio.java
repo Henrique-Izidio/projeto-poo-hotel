@@ -10,10 +10,6 @@ public class QuartoRepositorio implements Repositorio<Quarto> {
 
     public QuartoRepositorio() {
         this.quartos = new ArrayList<>();
-        this.quartos.add(new Quarto(100, "casal"));
-        this.quartos.add(new Quarto(101, "casal"));
-        this.quartos.add(new Quarto(102, "casal"));
-        this.quartos.add(new Quarto(103, "casal"));
     }
 
     @Override

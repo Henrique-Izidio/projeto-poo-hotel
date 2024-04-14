@@ -20,5 +20,18 @@ public class Util {
         System.out.println("Precione ENTER para continuar....");
         scanner.nextLine();
     }
+
+    public static int scanInt(Scanner scanner){
+        int numero;
+
+        while (!scanner.hasNextInt()) {
+            System.out.print("\nEntrada invalida. Tente novamente: ");
+            scanner.next(); // Consumir a entrada inválida
+        }
+
+        numero = scanner.nextInt();
+
+        return numero;
+    }
 }
 

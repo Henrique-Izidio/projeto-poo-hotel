@@ -1,37 +1,56 @@
 package src.br.edu.ufca.negocios;
 
-public class Quarto {
-    private int numero;
-    private String tipo;
-    private boolean disponivel;
+public abstract class Quarto {
 
-    public Quarto(int numero, String tipo) {
+    protected int numero;
+
+    protected double tamanhho;
+    protected double preco;
+    protected int camas;
+    
+
+    public Quarto(int numero) {
         this.numero = numero;
-        this.tipo = tipo;
-        this.disponivel = true;
     }
+
 
     public int getNumero() {
         return numero;
     }
 
+
     public void setNumero(int numero) {
         this.numero = numero;
     }
 
-    public String getTipo() {
-        return tipo;
+
+    public double getTamanhho() {
+        return tamanhho;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+
+    public void setTamanhho(double tamanhho) {
+        this.tamanhho = tamanhho;
     }
 
-    public boolean isDisponivel() {
-        return disponivel;
+
+    public double getPreco() {
+        return preco;
     }
 
-    public void setDisponivel(boolean disponivel) {
-        this.disponivel = disponivel;
+
+    public void setPreco(double preco) {
+        this.preco = preco;
     }
+
+
+    public int getCamas() {
+        return camas;
+    }
+
+
+    public void setCamas(int camas) {
+        this.camas = camas;
+    }
+
 }

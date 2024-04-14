@@ -9,6 +9,9 @@ import java.util.Scanner;
 
 import src.br.edu.ufca.negocios.Hotel;
 import src.br.edu.ufca.negocios.Quarto;
+import src.br.edu.ufca.negocios.QuartoBasico;
+import src.br.edu.ufca.negocios.QuartoDuplo;
+import src.br.edu.ufca.negocios.QuartoFamilia;
 import src.br.edu.ufca.negocios.Reserva;
 
 public class TextInterface {
@@ -37,24 +40,31 @@ public class TextInterface {
             scanner.nextLine();  // Consume newline left-over
             switch (opcao) {
                 case "1":
+                    Util.limparTela();
                     listarTodosQuartos();
                     break;
                 case "2":
+                    Util.limparTela();
                     adicionarQuarto();
                     break;
                 case "3":
+                    Util.limparTela();
                     removerQuarto();
                     break;
                 case "4":
+                    Util.limparTela();
                     criarReserva();
                     break;
                 case "5":
+                    Util.limparTela();
                     cancelarReserva();
                     break;
                 case "6":
+                    Util.limparTela();
                     prolongarReserva();
                     break;
                 case "7":
+                    Util.limparTela();
                     listarTodasReservas();
                     break;
                 case "8":
@@ -63,99 +73,120 @@ public class TextInterface {
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
             }
-            // Util.aguardar(2);
-            Util.pausa(scanner);;
+            Util.pausa(scanner);
         }
     }
 
     private void listarTodosQuartos() {
-        List<Quarto> quartos = hotel.listarTodosQuartos();
-        if (quartos.isEmpty()) {
-            System.out.println("Não há quartos disponíveis no momento.");
-        } else {
+        try {
+            List<Quarto> quartos = hotel.listarTodosQuartos();
+
             System.out.println("Lista de todos os quartos:");
+
             for (Quarto quarto : quartos) {
-                System.out.println("Número do quarto: " + quarto.getNumero());
-                System.out.println("Tipo do quarto: " + quarto.getTipo());
-                System.out.println("Disponível: " + (quarto.isDisponivel() ? "Sim" : "Não"));
+                System.out.print("\nNúmero do quarto: " + quarto.getNumero() + " - ");
+
+                if (quarto instanceof QuartoBasico) System.out.print("Quarto Basico");
+                if (quarto instanceof QuartoDuplo) System.out.print("Quarto Duplo");
+                if (quarto instanceof QuartoFamilia) System.out.print("Quarto Familiar");
+                
                 System.out.println("------------------------");
             }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
         }
+        
     }
     
     private void adicionarQuarto() {
         System.out.print("Digite o número do quarto: ");
-        int numero = scanner.nextInt();
-        scanner.nextLine();  // Consume newline left-over
-        System.out.print("Digite o tipo do quarto: ");
-        String tipo = scanner.nextLine();
-        hotel.adicionarQuarto(numero, tipo);
-        System.out.println("Quarto adicionado com sucesso!");
+        int numero = Util.scanInt(scanner);
+        
+        System.out.println("Qual o tipo do quarto?");
+        System.out.println("1 - Basico");
+        System.out.println("2 - Duplo");
+        System.out.println("3 - Familia");
+        System.out.print("\nDigite o tipo do quarto: ");
+    
+        int opcao = Util.scanInt(scanner);
+
+        try {
+            hotel.adicionarQuarto(numero, opcao);
+            System.out.println("Quarto adicionado com sucesso!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }    
+        
     }
     
     private void removerQuarto() {
+
         System.out.print("Digite o número do quarto que deseja remover: ");
-        int numero = scanner.nextInt();
-        scanner.nextLine();  // Consume newline left-over
-        Quarto quarto = hotel.buscarQuarto(numero);
-        if (quarto != null) {
+        
+        try {
+            int numero = Util.scanInt(scanner);
+            
             hotel.removerQuarto(numero);
-            System.out.println("Quarto removido com sucesso!");
-        } else {
-            System.out.println("Quarto não encontrado.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
+
+        System.out.println("Quarto removido com sucesso!");
     }
     
     private void criarReserva() {
-        System.out.print("Digite o ID da reserva: ");
-        int id = scanner.nextInt();
-        System.out.print("Digite o número do quarto: ");
+        System.out.print("\nDigite o ID da reserva: ");
+        int id = Util.scanInt(scanner);
+
+        System.out.print("\nDigite o número do quarto: ");
         int numeroQuarto = scanner.nextInt();
-        System.out.print("Digite a data de início da reserva (no formato dd/MM/yyyy): ");
+
+        System.out.print("\nDigite a data de início da reserva (no formato dd/MM/yyyy): ");
         String dataInicioStr = scanner.next();
+        
+        System.out.print("\nDigite a data de fim da reserva (no formato dd/MM/yyyy): ");
+        String dataFimStr = scanner.next();
+        
         Date dataInicio;
+        Date dataFim;
+
         try {
             dataInicio = new SimpleDateFormat("dd/MM/yyyy").parse(dataInicioStr);
-        } catch (ParseException e) {
-            System.out.println("Erro: Falaha ao criar reserva, escreva uma data no formato dd/MM/yyyy");
-            e.printStackTrace();
-            return;
-        }
-        System.out.print("Digite a data de fim da reserva (no formato dd/MM/yyyy): ");
-        String dataFimStr = scanner.next();
-        Date dataFim;
-        try {
             dataFim = new SimpleDateFormat("dd/MM/yyyy").parse(dataFimStr);
         } catch (ParseException e) {
-            System.out.println("Erro: Falaha ao criar reserva, escreva uma data no formato dd/MM/yyyy");
+            System.out.println("Falaha ao criar reserva, escreva uma data no formato dd/MM/yyyy");
             e.printStackTrace();
             return;
         }
-        System.out.print("Digite o nome do cliente: ");
+
+        System.out.print("\nDigite o nome do cliente: ");
         String cliente = scanner.next();
-        if(dataFim.before(dataInicio)){
-            System.out.println("Não é possivel reservar um quarto nesse periodo");
-            return;
+
+        try {
+            hotel.criarReserva(id, numeroQuarto, dataInicio, dataFim, cliente);
+            System.out.println("Reserva criada com sucesso!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        hotel.criarReserva(id, numeroQuarto, dataInicio, dataFim, cliente);
-        System.out.println("Reserva criada com sucesso!");
     }
     
     private void cancelarReserva() {
-        System.out.print("Digite o ID da reserva que deseja cancelar: ");
-        int id = scanner.nextInt();
-        Reserva reserva = hotel.buscarReserva(id);
-        if (reserva != null) {
+        System.out.print("\nDigite o ID da reserva que deseja cancelar: ");
+        int id = Util.scanInt(scanner);
+
+        try {
             hotel.cancelarReserva(id);
             System.out.println("Reserva cancelada com sucesso!");
-        } else {
-            System.out.println("Reserva não encontrada.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
     
     private void prolongarReserva() {
         System.out.print("Digite o ID da reserva que deseja prolongar: ");
-        int id = scanner.nextInt();
+        int id = Util.scanInt(scanner);
+        
         System.out.print("Digite a nova data de fim da reserva (no formato dd/MM/yyyy): ");
         String novaDataFimStr = scanner.next();
         Date novaDataFim;

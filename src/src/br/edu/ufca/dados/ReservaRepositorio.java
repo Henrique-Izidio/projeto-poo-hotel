@@ -39,8 +39,6 @@ public class ReservaRepositorio implements Repositorio<Reserva> {
 
     @Override
     public void atualizar(Reserva reserva, int indice) {
-        if (indice != -1) {
-            reservas.set(indice, reserva);
-        }
+        reservas.set(indice, reserva);
     }
 }

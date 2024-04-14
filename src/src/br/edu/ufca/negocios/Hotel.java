@@ -15,58 +15,109 @@ public class Hotel {
         this.reservaRepositorio = new ReservaRepositorio();
     }
 
-    public void adicionarQuarto(int numero, String tipo) {
-        Quarto quarto = new Quarto(numero, tipo);
-        quartoRepositorio.adicionar(quarto);
-    }
+    public void adicionarQuarto(int numero, int tipo) {
 
-    public void removerQuarto(int numero) {
-        Quarto quarto = buscarQuarto(numero);
-        if (quarto != null) {
-            quartoRepositorio.remover(quarto);
+        for (Quarto q : listarTodosQuartos()) {
+            if (numero == q.getNumero()) throw new RuntimeException("O quarto já existe");
         }
-    }
 
-    public Quarto buscarQuarto(int numero) {
-        return quartoRepositorio.buscar(numero);
+        Quarto nQuarto;
+
+        switch (tipo) {
+            case 1:
+                nQuarto = new QuartoBasico(numero);
+                break;
+            case 2:
+                nQuarto = new QuartoDuplo(numero);
+                break;
+            case 3:
+                nQuarto = new QuartoFamilia(numero);
+                break;  
+            default:
+                throw new RuntimeException("O tipo de quarto não existe");
+        }
+
+        quartoRepositorio.adicionar(nQuarto);
     }
 
     public List<Quarto> listarTodosQuartos() {
+        
+        if (quartoRepositorio.listarTodos().isEmpty()) {
+            throw new RuntimeException("Não há quartos disponíveis no momento");
+        }
+
         return quartoRepositorio.listarTodos();
+    }
+
+    public Quarto buscarQuarto(int numero) {
+        Quarto quarto = quartoRepositorio.buscar(numero);
+
+        if (quarto == null) throw new RuntimeException("O quarto não existe");
+
+        return quarto;
+    }    
+
+    public void removerQuarto(int numero) {
+        Quarto quarto = buscarQuarto(numero);
+
+        if (quarto == null) throw new RuntimeException("O quarto não existe");
+
+        quartoRepositorio.remover(quarto);
+    }
+
+    public void criarReserva(int id, int numeroQuarto, Date dataInicio, Date dataFim, String cliente) {
+
+        buscarQuarto(numeroQuarto);
+
+        for (Reserva reserva : listarTodasReservas()) {
+            if (numeroQuarto == reserva.getNumQuarto()) {
+                if (dataInicio.before(reserva.getDataFim())) {
+                    throw new RuntimeException("O quarto não está disponivel no periodo da reserva");
+                } else if (dataFim.after(reserva.getDataInicio())) {
+                    throw new RuntimeException("O quarto não está disponivel no periodo da reserva");
+                }
+            }
+        }
+        
+        Reserva reserva = new Reserva(id, numeroQuarto, dataInicio, dataFim, cliente);
+
+        reservaRepositorio.adicionar(reserva);
+        
+    }
+
+    public void cancelarReserva(int id) {
+        Reserva reserva = buscarReserva(id);
+
+        reservaRepositorio.remover(reserva);
     }
 
     public List<Reserva> listarTodasReservas() {
         return reservaRepositorio.listarTodos();
     }
 
-    public void criarReserva(int id, int numeroQuarto, Date dataInicio, Date dataFim, String cliente) {
-        Quarto quarto = buscarQuarto(numeroQuarto);
-        quarto.setDisponivel(false);
-        if (quarto != null) {
-            Reserva reserva = new Reserva(id, numeroQuarto, dataInicio, dataFim, cliente);
-            reservaRepositorio.adicionar(reserva);
-        }
-    }
-
-    public void cancelarReserva(int id) {
-        Reserva reserva = buscarReserva(id);
-        Quarto quarto = buscarQuarto(reserva.getNumQuarto());
-        quarto.setDisponivel(true);
-        if (reserva != null) {
-            reservaRepositorio.remover(reserva);
-        }
-    }
-
     public Reserva buscarReserva(int id) {
-        return reservaRepositorio.buscar(id);
+
+        Reserva reserva = reservaRepositorio.buscar(id);
+
+        if (reserva == null) throw new RuntimeException("A reserva não existe");
+
+        return reserva;
     }
 
     public void prolongarReserva(int id, Date novaDataFim) {
         Reserva reserva = buscarReserva(id);
+
         int indice = reservaRepositorio.listarTodos().indexOf(reserva);
-        if (reserva != null) {
-            reserva.setDataFim(novaDataFim);
-            reservaRepositorio.atualizar(reserva, indice);
+
+        for (Reserva r : listarTodasReservas()) {
+            if (r.getNumQuarto() == r.getNumQuarto() && id != r.getId()) {
+                if (novaDataFim.after(r.getDataInicio())) {
+                    throw new RuntimeException("O quarto não está disponivel neste periodo");
+                }
+            }
         }
+
+        reserva.setDataFim(novaDataFim);
+        reservaRepositorio.atualizar(reserva, indice);
     }
 }
